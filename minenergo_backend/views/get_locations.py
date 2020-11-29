@@ -36,6 +36,16 @@ async def get_locations(request):
                     'color': graph.color
                 }
             )
+
+        data = sess.query(EnergySystems).order_by(EnergySystems.energy_system_id).all()
+        for energy_system in data:
+            locations.setdefault(
+                energy_system.energy_system_id,
+                {
+                    'id': energy_system.energy_system_id,
+                    'title': energy_system.energy_system_name,
+                    'graphs': {}
+                })
         response = list(locations.values())
         for item in response:
             item['graphs'] = list(item['graphs'].values())

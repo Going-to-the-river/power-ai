@@ -43,16 +43,32 @@ class Dataset(Base):
 
     data_id = Column(Integer, primary_key=True)
     date = Column(DateTime)
-    generation = Column(Float)
-    consumption = Column(Float)
-    temp_nw_ues = Column(Float)
+    consumption_ues = Column(Float)
+    temp_ues = Column(Float)
+    consumption_nw_ues = Column(Float)
+    temp_nw = Column(Float)
+
+    temp_spb = Column(Float)
+    pressure_spb = Column(Float)
+    humidity_spb = Column(Float)
+    wind_speed_spb = Column(Float)
+    cloudiness_spb = Column(Float)
+
     usd_to_rub = Column(Float)
     gas_avg_price = Column(Float)
-    coal_close_price = Column(Float)
     oil_avg_price = Column(Float)
     frequency = Column(Float)
+
+    year = Column(Integer)
+    month = Column(Integer)
+    day = Column(Integer)
     day_of_week = Column(Integer)
+
+    consumption_ues_rm = Column(Float)
+    consumption_nw_rm = Column(Float)
+
     energy_system_id = Column(Integer, ForeignKey('EnergySystems.energy_system_id'))
+
 
     to_json = to_json_method
 
@@ -96,3 +112,14 @@ class Features(Base):
 
     to_json = to_json_method
 
+
+class PlotEconomic(Base):
+    __tablename__ = 'PlotEconomic'
+
+    id = Column(Integer, primary_key=True)
+    date = Column(DateTime)
+    consumption = Column(Float)
+    consumption_speed = Column(Float)
+    vrp_speed = Column(Float)
+
+    to_json = to_json_method

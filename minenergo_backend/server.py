@@ -8,6 +8,7 @@ from views.get_locations import get_locations
 from views.get_location import get_location
 from views.get_graph_by_id import get_graph_by_id
 from views.get_features import get_features
+from views.get_prediction import get_prediction
 
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
@@ -26,14 +27,15 @@ def start_server():
         ('/backend/groups/', get_groups),
         ('/backend/graphs/', get_graphs),
         (r'/backend/locations/{id:\d+}/', get_location),
-        # (r'/graph/{id:\d+}', get_graph_by_id)
     ]
     post_requests = [
         ('/backend/get_graph_by_id/', get_graph_by_id),
         ('/backend/get_locations/', get_locations),
-        ('/backend/get_features/', get_features)
+        ('/backend/get_features/', get_features),
+        ('/backend/get_prediction/', get_prediction)
 
     ]
+
     get_routes = [web.get(path, handler) for path, handler in get_requests]
     post_routes = [web.post(path, handler) for path, handler in post_requests]
     routes = get_routes + post_routes

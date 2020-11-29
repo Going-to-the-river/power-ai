@@ -1,15 +1,32 @@
 from db.models import Dataset
-from time import mktime
+import pandas as pd
+from datetime import date, datetime, timedelta
+from features.features import get_data_for_prediction, predict_consumption
+dataset = pd.read_csv('db/data/dataset_ML1.csv')
+
+
+def prepare_dataset():
+    for index in range(len(dataset['date'])):
+        old = date.fromisoformat(dataset['date'][index])
+        new = datetime(old.year, old.month, old.day, 0, 0, 0)
+        dataset['date'][index] = new
+
+
+prepare_dataset()
 
 graphs_data_column = {
-    1: Dataset.generation,
-    2: Dataset.consumption,
-    4: Dataset.frequency,
-    5: Dataset.temp_nw_ues,
-    6: Dataset.usd_to_rub,
-    7: Dataset.gas_avg_price,
-    8: Dataset.coal_close_price,
-    9: Dataset.oil_avg_price,
+    1: 'consumption_NW_UES',
+    2: 'generation_NW_UES',
+    4: 'frequency',
+    5: 'temp_NW',
+    6: 'USD_to_RUB',
+    7: 'gas_avg_price',
+    8: 'oil_avg_price',
+    9: 'temp_SPB',
+    10: 'pressure_SPB',
+    11: 'humidity_SPB',
+    12: 'wind_speed_SPB',
+    13: 'cloudiness_SPB'
 }
 
 
@@ -61,7 +78,11 @@ graphs_data_preparation = {
     6: avg_data,
     7: avg_data,
     8: avg_data,
-    9: avg_data
+    9: avg_data,
+    10: avg_data,
+    11: avg_data,
+    12: avg_data,
+    13: avg_data
 }
 
 
@@ -74,39 +95,43 @@ def prepare_data(x, y, date_resolution, graph_type):
         return [], []
 
 
-def filter_query_by_date(query, start, end):
+def filter_query_by_date(data, start, end):
     if not (start is None):
-        query = query.filter(Dataset.date >= start)
+        data = data[data.date >= start]
     if not (end is None):
-        query = query.filter(Dataset.date < end)
-    return query
+        data = data[data.date < end]
+    return data
 
 
-def extract_data_from_query(query):
+def extract_data_from_query(data):
     date_list = []
     values_list = []
-    for id, d, value in query.order_by(Dataset.date).all():
-        date_list.append(d)
-        values_list.append(value)
+    for _, value in data.iterrows():
+        date_list.append(value[0])
+        values_list.append(value[1])
     return date_list, values_list
 
 
-def get_graph_data(graph_type, energy_system_id, sess, start=None, end=None):
+def generate_dates(n, start):
+    dates = [start]
+    for i in range(n-1):
+        dates.append(dates[-1] + timedelta(days=1))
+    return dates
+
+def get_graph_data(graph_type, start=None, end=None):
     if not(graphs_data_column.get(graph_type) is None):
-        query = sess.query(Dataset.data_id, Dataset.date, graphs_data_column[graph_type])\
-            .filter(Dataset.energy_system_id==energy_system_id)
-        query = filter_query_by_date(query, start, end)
-        date_list, values_list = extract_data_from_query(query)
+        data = dataset[['date', graphs_data_column.get(graph_type)]].copy()
+        data = filter_query_by_date(data, start, end)
+        date_list, values_list = extract_data_from_query(data)
         return date_list, values_list
     elif graph_type == 3:
-        query = sess.query(Dataset.data_id, Dataset.date, Dataset.generation, Dataset.consumption)\
-            .filter(Dataset.energy_system_id == energy_system_id)
-        query = filter_query_by_date(query, start, end)
+        data = dataset[['date', 'generation_NW_UES', 'consumption_NW_UES']].copy()
+        data = filter_query_by_date(data, start, end)
         date_list = []
         values_list = []
-        for id, date, generation, consumption in query.order_by(Dataset.date).all():
-            date_list.append(date)
-            values_list.append(generation-consumption)
+        for _, values in data.iterrows():
+            date_list.append(values[0])
+            values_list.append(values[1]-values[2])
         return date_list, values_list
     else:
         return [], []

@@ -1,8 +1,7 @@
 from aiohttp import web
 from db.models import Graphs
 from graphs.graphs import get_graph_data, prepare_data
-from datetime import datetime
-from time import mktime
+from datetime import datetime, timedelta
 import contextlib
 
 
@@ -55,6 +54,9 @@ def generate_response_data(dates, values):
     return response
 
 
+
+
+
 async def get_graph_by_id(request):
     session = request.app['session']
     request_json = await request.json()
@@ -75,7 +77,7 @@ async def get_graph_by_id(request):
             return web.HTTPNotFound()
         energy_system_id = graph.energy_system_id
         graph_type_id = graph.graph_type_id
-        dates, values = get_graph_data(graph_type_id, energy_system_id, sess, start, end)
+        dates, values = get_graph_data(graph_type_id, start, end)
         dates, values = prepare_data(dates, values, date_resolution, graph_type_id)
         response = generate_response_data(dates, values)
         return web.json_response({'color': graph.color, 'data': response, 'ylab': graph.ylab})

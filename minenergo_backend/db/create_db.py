@@ -1,24 +1,10 @@
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from db.models import Base, Regions, EnergySystems, Dataset, Groups, Graphs, Features
-from db.data.regions import REGIONS
 from db.data.energy_systems import ENERGY_SYSTEMS
 from db.data.dataset import get_dataset
-from db.data.graphs import generate_groups_graphs_features
+from db.data.graphs import groups, graphs, features
 from datetime import datetime
-
-
-def fill_regions_table():
-    regions_rows = []
-    for region in REGIONS:
-        regions_rows.append(
-            Regions(
-                region_id=region['region_id'],
-                region_name=region['region_name'],
-                energy_system_id=region['energy_system_id']
-            )
-        )
-    return regions_rows
 
 
 def fill_energy_systems_table():
@@ -41,16 +27,27 @@ def fill_nw_dataset_table():
             Dataset(
                 data_id=index,
                 date=datetime.fromisoformat(row.date),
-                generation=row.generation,
-                consumption=row.consumption,
-                temp_nw_ues=row.temp_NW_UES,
+                consumption_ues=row.consumption_UES,
+                temp_ues=row.temp_UES,
+                consumption_nw_ues=row.consumption_NW_UES,
+                temp_nw=row.temp_NW,
+                temp_spb=row.temp_SPB,
+                pressure_spb=row.pressure_SPB,
+                humidity_spb=row.wind_speed_SPB,
+                wind_speed_spb=row.wind_speed_SPB,
+                cloudiness_spb=row.cloudiness_SPB,
                 usd_to_rub=row.USD_to_RUB,
                 gas_avg_price=row.gas_avg_price,
-                coal_close_price=row.coal_close_price,
                 oil_avg_price=row.oil_avg_price,
                 frequency=row.frequency,
-                day_of_week=row.day_of_week,
-                energy_system_id=0
+                year=row.year,
+                month=row.month,
+                day=row.day,
+                day_of_week=row.dayofweek,
+                consumption_ues_rm=row.consumption_UES_rm,
+                consumption_nw_rm=row.consumption_NW_rm,
+                energy_system_id=0,
+
             )
         )
     return dataset_rows
@@ -112,8 +109,6 @@ def create_and_fill_tables():
     engine = create_engine('sqlite:///testdb', echo=True)
     tables = [
         EnergySystems.__table__,
-        Regions.__table__,
-        Dataset.__table__,
         Groups.__table__,
         Graphs.__table__,
         Features.__table__
@@ -124,14 +119,10 @@ def create_and_fill_tables():
     session = sessionmaker(bind=engine)
     sess = session()
 
-    groups, graphs, features = generate_groups_graphs_features()
-
     sess.add_all(fill_energy_systems_table())
     sess.commit()
-    sess.add_all(fill_regions_table())
-    sess.commit()
-    sess.add_all(fill_nw_dataset_table())
-    sess.commit()
+    # sess.add_all(fill_nw_dataset_table())
+    # sess.commit()
     sess.add_all(fill_groups_table(groups))
     sess.commit()
     sess.add_all(fill_graphs_table(graphs))
