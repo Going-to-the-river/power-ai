@@ -45,7 +45,8 @@ export default new Vuex.Store({
 
     GRAPH_RESOLUTIONS:GRAPH_RESOLUTIONS,
     current_graph_resolution:GRAPH_RESOLUTIONS.DAY,
-    current_graph_date: Date.now(),
+    // current_graph_date: Date.now(),
+    current_graph_date: new Date('2020.11.27'),
 
     features:[],
 
@@ -193,7 +194,8 @@ export default new Vuex.Store({
             //~~~~~~~~~~~~~~~~~~~~~start replace data 2~~~~~~~~~~~~~~~~~~~~
             var datasets = data.chart.data.datasets
 
-            var today = new Date()
+            // var today = new Date()
+            var today = new Date('2020.11.27')
             today.setHours(0,0,0,0)
 
             if(today.getTime() < end.getTime() + 3600){

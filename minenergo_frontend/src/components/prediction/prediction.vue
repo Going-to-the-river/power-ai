@@ -53,7 +53,7 @@
         <div class="prediction">
           <graph
             v-if="is_prediction_ready"
-            title="Предсказание"
+            title="Предсказание потребления электроэнергии"
             :graph_id="-1"
             :is_immutable="true"
             :immutable_datasets="make_immutable_datasets()"
@@ -112,11 +112,11 @@
       make_immutable_datasets(){
         var ds = [
           {
-            label:'Базовое предсказание',
+            label:'Базовое предсказание, МВт*ч',
             data:this.baseline_graph_data,
           },
           {
-            label:'Интерактивное предсказание',
+            label:'Интерактивное предсказание, МВт*ч',
             data:this.prediction_graph_data,
             borderColor:'#f93',
             pointBackgroundColor:'#f93',
@@ -135,11 +135,12 @@
       //~~~~~~~~~~~~~~~~~~~~~~~~~
       this.last_date = this.$store.state.current_graph_date
 
-      var today = new Date()
+      // var today = new Date()
+      var today = new Date('2020.11.27')
       today.setHours(0,0,0,0)
 
       var new_date = new Date(today)
-      new_date.setDate(new_date.getDate() - 15);
+      new_date.setDate(new_date.getDate() - 13);
 
       this.$store.state.current_graph_date = new_date
 

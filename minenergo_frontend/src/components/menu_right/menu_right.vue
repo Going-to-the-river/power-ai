@@ -248,8 +248,9 @@
           value *= 365
         }
 
-        var date_min = new Date('2000.01.01')
-        var date_max = new Date()
+        var date_min = new Date('2007.01.01')
+        // var date_max = new Date()
+        var date_max = new Date('2020.11.27')
 
         var new_date = new Date(this.$store.state.current_graph_date)
         new_date.setDate(new_date.getDate() + value);
